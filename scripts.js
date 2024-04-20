@@ -21,25 +21,24 @@ class GameBoard {
 
     createBoard() {
         const board = [];
-        for(let i = 0; i < this.rows; i ++) {
+        for (let i = 0; i < this.rows; i++) {
             board[i] = [];
-            for(let j = 0; j < this.columns; j ++) {
+            for (let j = 0; j < this.columns; j++) {
                 board[i].push(new Cell());
             }
         }
         return board;
     }
-    
+
     getBoard() {
         return this.board;
     }
 
     playTurn(player, row, column) {
-        if(this.board[row][column].value === '-') {
+        if (this.board[row][column].value === '-') {
             this.board[row][column].value = player;
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -48,23 +47,21 @@ class GameBoard {
         const curState = this.board.map(row => row.map(cell => cell.value));
         console.log(curState);
     }
-} 
+}
 
 class GameController {
-    constructor(
-        playerOneName = "Player One",
-        playerTwoName = "Player Two") {
-            this.board = new GameBoard();
-            this.players = [
-                {name: playerOneName, token: 'x'},
-                {name: playerTwoName, token: 'o'}
-            ];
-            this.activePlayer = this.players[0];
-            this.printNewRound();
-        }
+    constructor(playerOneName = "Player One", playerTwoName = "Player Two") {
+        this.board = new GameBoard();
+        this.players = [
+            { name: playerOneName, token: 'x' },
+            { name: playerTwoName, token: 'o' }
+        ];
+        this.activePlayer = this.players[0];
+        this.printNewRound();
+    }
 
     switchPlayerTurn() {
-        this.activePlayer = this.activePlayer === this.players[0] ? this.players[1] : this.players[0]; 
+        this.activePlayer = this.activePlayer === this.players[0] ? this.players[1] : this.players[0];
     }
 
     getActivePlayer() {
@@ -77,59 +74,54 @@ class GameController {
     }
 
     checkBoard() {
-        let emptyCells = 0;
-
-        // Check rows
-        for(let i = 0; i < 3; i ++) {
+        for (let i = 0; i < 3; i++) {
             let rowMatches = 0;
-            for(let j = 0; j < 3; j ++) {
-                // Corrected: Added parentheses to call getValue() function
-                if(this.board.getBoard()[i][j].value === '-') {
-                    emptyCells ++;
-                }
-                else if(this.board.getBoard()[i][j].value === this.board.getBoard()[i][0].value) {
-                    rowMatches ++;
+            for (let j = 0; j < 3; j++) {
+                if (this.board.getBoard()[i][j].value === this.board.getBoard()[i][0].value && this.board.getBoard()[i][j].value !== '-') {
+                    rowMatches++;
                 }
             }
-            if(rowMatches === 3) {
+            if (rowMatches === 3) {
                 return true;
             }
         }
 
-        // Check columns
-        for(let i = 0; i < 3; i ++) {
+        for (let i = 0; i < 3; i++) {
             let colMatches = 0;
-            for(let j = 0; j < 3; j ++) {
-                // Corrected: Added parentheses to call getValue() function
-                if(this.board.getBoard()[j][i].value === this.board.getBoard()[0][i].value && this.board.getBoard()[i][j].value !== '-') {
-                    colMatches ++;
+            for (let j = 0; j < 3; j++) {
+                if (this.board.getBoard()[j][i].value === this.board.getBoard()[0][i].value && this.board.getBoard()[j][i].value !== '-') {
+                    colMatches++;
                 }
             }
-            if(colMatches === 3) {
+            if (colMatches === 3) {
                 return true;
             }
         }
-
 
         // Check diagonals
-        if((this.board.getBoard()[0][0].value !== '-' &&
+        if ((this.board.getBoard()[0][0].value !== '-' &&
             this.board.getBoard()[0][0].value === this.board.getBoard()[1][1].value && this.board.getBoard()[1][1].value === this.board.getBoard()[2][2].value) ||
-            (this.board.getBoard()[0][2].value !== '-' && 
-            this.board.getBoard()[0][2].value === this.board.getBoard()[1][1].value && this.board.getBoard()[1][1].value === this.board.getBoard()[2][0].value)) 
-            {
+            (this.board.getBoard()[0][2].value !== '-' &&
+                this.board.getBoard()[0][2].value === this.board.getBoard()[1][1].value && this.board.getBoard()[1][1].value === this.board.getBoard()[2][0].value)) {
             return true;
-            }
-        
-       
+        }
 
         // Check for tie
+
+        let emptyCells = 0;
+
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if (this.board.getBoard()[i][j].value === '-') {
+                    emptyCells++;
+                }
+            }
+        }
         if (emptyCells === 0) {
             return 'tie';
         }
-
         return false;
     }
-        
 
     playRound(row, column) {
         console.log(`Player ${this.getActivePlayer().name} row: ${row}, column: ${column}`);
@@ -148,7 +140,6 @@ class GameController {
             this.printNewRound();
         }
     }
-    
 }
 
 const game = new GameController();
@@ -164,7 +155,7 @@ function initializeBoard() {
     for (let i = 0; i < board.length; i++) {
         const rowDiv = document.createElement('div');
         rowDiv.classList.add('row');
-        
+
         for (let j = 0; j < board[i].length; j++) {
             const cellDiv = document.createElement('div');
             cellDiv.classList.add('cell');
@@ -181,13 +172,21 @@ function initializeBoard() {
 initializeBoard();
 
 document.querySelectorAll('.cell').forEach(cell => {
-    cell.addEventListener('click', () => {
-        const row = parseInt(cell.getAttribute('data-row'));
-        const column = parseInt(cell.getAttribute('data-column'));
-        game.playRound(row, column);       
-        updateInterface();
-    });
+    cell.addEventListener('click', cellClickHandler); // Add event listener for cell clicks
 });
+
+function cellClickHandler() {
+    const row = parseInt(this.getAttribute('data-row'));
+    const column = parseInt(this.getAttribute('data-column'));
+    game.playRound(row, column);
+    updateInterface();
+}
+
+const disableCellClick = () => {
+    document.querySelectorAll('.cell').forEach(cell => {
+        cell.removeEventListener('click', cellClickHandler);
+    });
+};
 
 function updateInterface() {
     const board = game.board.getBoard();
@@ -202,9 +201,25 @@ function updateInterface() {
     const checker = game.checkBoard();
     if (checker === true) {
         resultDisplay.textContent = `${game.getActivePlayer().name} won the game`;
+        disableCellClick();
     } else if (checker === 'tie') {
         resultDisplay.textContent = `It's a tie`;
+        disableCellClick();
     } else {
         resultDisplay.textContent = `${game.getActivePlayer().name}'s turn`;
     }
+}
+
+document.querySelector('.restart-btn').addEventListener('click', () => {
+    gameRestart();
+});
+
+function gameRestart() {
+    const board = game.board.getBoard(); 
+    document.querySelectorAll('.cell').forEach((cell, index) => {
+        const row = Math.floor(index / board.length);
+        const column = index % board[row].length;
+        cell.textContent = '-';
+        board[row][column].value = '-';
+    });
 }
