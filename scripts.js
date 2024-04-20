@@ -167,13 +167,17 @@ function initializeBoard() {
 
         boardContainer.appendChild(rowDiv);
     }
+    addCellClickListeners();
 }
 
 initializeBoard();
 
-document.querySelectorAll('.cell').forEach(cell => {
-    cell.addEventListener('click', cellClickHandler); // Add event listener for cell clicks
-});
+function addCellClickListeners() {
+    document.querySelectorAll('.cell').forEach(cell => {
+        cell.addEventListener('click', cellClickHandler); 
+    });
+}
+
 
 function cellClickHandler() {
     const row = parseInt(this.getAttribute('data-row'));
@@ -188,10 +192,11 @@ const disableCellClick = () => {
     });
 };
 
+const resultDisplay = document.querySelector('.turn');
+
 function updateInterface() {
     const board = game.board.getBoard();
-    const resultDisplay = document.querySelector('.turn');
-
+    
     document.querySelectorAll('.cell').forEach((cell, index) => {
         const row = Math.floor(index / board.length);
         const column = index % board[row].length;
@@ -221,5 +226,7 @@ function gameRestart() {
         const column = index % board[row].length;
         cell.textContent = '-';
         board[row][column].value = '-';
+        addCellClickListeners();
+        resultDisplay.textContent = "New Game!" 
     });
 }
